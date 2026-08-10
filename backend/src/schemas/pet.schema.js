@@ -71,6 +71,9 @@ const createPetSchema = z.object({
     .nullable(),
 });
 
+const updatePetSchema = createPetSchema.partial();
+
 module.exports = {
   createPetSchema,
+  updatePetSchema,
 };

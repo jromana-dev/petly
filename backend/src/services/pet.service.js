@@ -64,8 +64,78 @@ const createPet = async (data) => {
   });
 };
 
+const updatePet = async (id, data) => {
+  return prisma.pet.update({
+    where: {
+      id,
+    },
+    data: {
+      ...(data.name !== undefined && {
+        name: data.name,
+      }),
+
+      ...(data.photo !== undefined && {
+        photo: data.photo,
+      }),
+
+      ...(data.species !== undefined && {
+        species: data.species,
+      }),
+
+      ...(data.sex !== undefined && {
+        sex: data.sex,
+      }),
+
+      ...(data.birthDate !== undefined && {
+        birthDate: dateOnlyToDate(data.birthDate),
+      }),
+
+      ...(data.adoptionDate !== undefined && {
+        adoptionDate: dateOnlyToDate(data.adoptionDate),
+      }),
+
+      ...(data.color !== undefined && {
+        color: data.color,
+      }),
+
+      ...(data.microchip !== undefined && {
+        microchip: data.microchip,
+      }),
+
+      ...(data.identifier !== undefined && {
+        identifier: data.identifier,
+      }),
+
+      ...(data.notes !== undefined && {
+        notes: data.notes,
+      }),
+    },
+
+    include: {
+      breeds: {
+        include: {
+          breed: true,
+        },
+      },
+    },
+  });
+};
+
+const deletePet = async (id) => {
+  return prisma.pet.update({
+    where: {
+      id,
+    },
+    data: {
+      active: false,
+    },
+  });
+};
+
 module.exports = {
   getAllPets,
   getPetById,
   createPet,
+  updatePet,
+  deletePet,
 };
