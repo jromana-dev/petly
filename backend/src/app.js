@@ -1,21 +1,23 @@
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
+
+const petRoutes = require('./routes/pet.routes');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
-
-const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
 
+app.use('/api/pets', petRoutes);
+
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
-    service: 'pet-manager-backend'
+    service: 'petly-backend',
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Pet Manager backend running on port ${PORT}`);
-});
+app.use(errorHandler);
+
+module.exports = app;

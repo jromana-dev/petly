@@ -37,8 +37,8 @@ model Pet {
   species      PetSpecies
   sex          PetSex      @default(UNKNOWN)
 
-  birthDate    DateTime?
-  adoptionDate DateTime?
+  birthDate    DateTime? @db.Date
+  adoptionDate DateTime? @db.Date
 
   color        String?
   microchip    String?     @unique
