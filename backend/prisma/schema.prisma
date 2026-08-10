@@ -4,10 +4,77 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mysql"
+}
+
+enum PetSpecies {
+  DOG
+  CAT
+  BIRD
+  RABBIT
+  RODENT
+  REPTILE
+  OTHER
+}
+
+enum PetSex {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+model Pet {
+  @@map("pet")
+  id           Int         @id @default(autoincrement())
+
+  name         String
+  photo        String?
+
+  species      PetSpecies
+  sex          PetSex      @default(UNKNOWN)
+
+  birthDate    DateTime?
+  adoptionDate DateTime?
+
+  color        String?
+  microchip    String?     @unique
+  identifier   String?
+  notes        String?
+
+  active       Boolean     @default(true)
+
+  breeds       PetBreed[]
+
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Breed {
+  @@map("breed")
+  id        Int         @id @default(autoincrement())
+  name      String
+  species   PetSpecies
+
+  pets      PetBreed[]
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@unique([name, species])
+}
+
+model PetBreed {
+  @@map("pet_breed")
+  petId       Int
+  breedId     Int
+  percentage  Int?
+
+  pet         Pet       @relation(fields: [petId], references: [id], onDelete: Cascade)
+  breed       Breed     @relation(fields: [breedId], references: [id], onDelete: Cascade)
+
+  @@id([petId, breedId])
 }
