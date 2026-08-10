@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Labrador Retriever",
+    "species": "DOG"
+  },
+  {
+    "name": "Pastor Alemán",
+    "species": "DOG"
+  },
+  {
+    "name": "Golden Retriever",
+    "species": "DOG"
+  },
+  {
+    "name": "Akita Inu",
+    "species": "DOG"
+  },
+  {
+    "name": "Pitbull Terrier",
+    "species": "DOG"
+  },
+  {
+    "name": "Bulldog Francés",
+    "species": "DOG"
+  },
+  {
+    "name": "Europeo Común",
+    "species": "CAT"
+  },
+  {
+    "name": "Canario",
+    "species": "BIRD"
+  },
+  {
+    "name": "Conejillo de Indias",
+    "species": "RABBIT"
+  }
+]

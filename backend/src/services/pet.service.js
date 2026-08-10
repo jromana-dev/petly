@@ -1,8 +1,41 @@
 const prisma = require('../config/prisma');
+const AppError = require('../utils/appError');
 
 const {
   dateOnlyToDate,
 } = require('../utils/date');
+
+const validateBreeds = async (breedIds, species) => {
+  if (!breedIds || breedIds.length === 0) {
+    return;
+  }
+
+  const breeds = await prisma.breed.findMany({
+    where: {
+      id: {
+        in: breedIds,
+      },
+    },
+  });
+
+  if (breeds.length !== breedIds.length) {
+    throw new AppError(
+      'One or more breeds were not found',
+      400
+    );
+  }
+
+  const invalidBreed = breeds.find(
+    (breed) => breed.species !== species
+  );
+
+  if (invalidBreed) {
+    throw new AppError(
+      `Breed ${invalidBreed.id} does not belong to species ${species}`,
+      400
+    );
+  }
+};
 
 const getAllPets = async () => {
   return prisma.pet.findMany({
@@ -38,6 +71,8 @@ const getPetById = async (id) => {
 };
 
 const createPet = async (data) => {
+  await validateBreeds(data.breedIds, data.species);
+
   return prisma.pet.create({
     data: {
       name: data.name,
@@ -52,6 +87,16 @@ const createPet = async (data) => {
       microchip: data.microchip || null,
       identifier: data.identifier || null,
       notes: data.notes || null,
+
+      breeds: {
+        create: (data.breedIds || []).map((breedId) => ({
+          breed: {
+            connect: {
+              id: breedId,
+            },
+          },
+        })),
+      },
     },
 
     include: {
@@ -65,10 +110,34 @@ const createPet = async (data) => {
 };
 
 const updatePet = async (id, data) => {
+  const currentPet = await prisma.pet.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!currentPet) {
+    return null;
+  }
+
+  const newSpecies = data.species || currentPet.species;
+
+  if (data.breedIds !== undefined) {
+    await validateBreeds(data.breedIds, newSpecies);
+  } else if (
+    data.species !== undefined &&
+    data.species !== currentPet.species
+  ) {
+    throw new Error(
+      'breedIds must be provided when changing species'
+    );
+  }
+
   return prisma.pet.update({
     where: {
       id,
     },
+
     data: {
       ...(data.name !== undefined && {
         name: data.name,
@@ -108,6 +177,19 @@ const updatePet = async (id, data) => {
 
       ...(data.notes !== undefined && {
         notes: data.notes,
+      }),
+
+      ...(data.breedIds !== undefined && {
+        breeds: {
+          deleteMany: {},
+          create: data.breedIds.map((breedId) => ({
+            breed: {
+              connect: {
+                id: breedId,
+              },
+            },
+          })),
+        },
       }),
     },
 

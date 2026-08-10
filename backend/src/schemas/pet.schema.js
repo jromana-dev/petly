@@ -69,11 +69,23 @@ const createPetSchema = z.object({
     .max(2000)
     .optional()
     .nullable(),
+
+  breedIds: breedIdsSchema,
 });
 
 const updatePetSchema = createPetSchema.partial();
 
+const breedIdsSchema = z
+  .array(z.number().int().positive())
+  .refine(
+    (ids) => new Set(ids).size === ids.length,
+    'Breed ids must be unique'
+  )
+  .optional()
+  .default([]);
+
 module.exports = {
   createPetSchema,
   updatePetSchema,
+  breedIdsSchema
 };
